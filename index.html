@@ -1,677 +1,476 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Solicitudes</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sistema de Solicitudes</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0D1117;color:#E6EDF3;font-family:'IBM Plex Mono','Courier New',monospace;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#161B22}
+::-webkit-scrollbar-thumb{background:#30363D;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#F5A623}
+input,select{outline:none;font-family:inherit}
+input::placeholder{color:#484F58}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadeIn 0.35s ease}
+.row-hover:hover{background:rgba(245,166,35,0.05)!important}
+button{font-family:inherit;cursor:pointer;transition:opacity .2s,transform .2s}
+button:hover{opacity:.85}
+#header{background:#161B22;border-bottom:1px solid #21262D;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.logo-box{width:32px;height:32px;background:#F5A623;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#0D1117;font-size:16px}
+.logo-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.08em;color:#F5A623}
+.logo-sub{font-size:9px;color:#484F58;letter-spacing:.15em}
+.nav-tabs{display:flex;gap:8px}
+.nav-tab{background:none;border:none;padding:8px 14px;font-size:11px;letter-spacing:.1em;border-bottom:2px solid transparent;color:#8B949E;transition:all .2s}
+.nav-tab.active{color:#F5A623;border-bottom-color:#F5A623}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:#161B22;border:1px solid #21262D;border-radius:10px;padding:16px 20px}
+.stat-label{font-size:9px;color:#484F58;letter-spacing:.15em;margin-bottom:6px}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800}
+.filters{background:#161B22;border:1px solid #21262D;border-radius:10px;padding:16px;margin-bottom:20px}
+.filter-label{font-size:10px;color:#484F58;letter-spacing:.15em;margin-bottom:12px}
+.filters-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1.5fr;gap:10px}
+.filter-field label{font-size:10px;color:#8B949E;display:block;margin-bottom:4px}
+.inp{background:#0D1117;border:1px solid #30363D;border-radius:7px;padding:7px 12px;color:#E6EDF3;font-size:12px;font-family:inherit;width:100%}
+.inp:focus{border-color:#F5A623}
+.search-wrap{position:relative}
+.search-wrap .inp{padding-left:32px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#484F58;pointer-events:none;font-size:13px}
+.sol-card{background:#161B22;border:1px solid #21262D;border-radius:10px;overflow:hidden;margin-bottom:10px}
+.sol-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:background .2s;flex-wrap:wrap}
+.sol-header:hover,.sol-header.open{background:rgba(245,166,35,0.04)}
+.chevron{color:#484F58;font-size:14px;display:inline-flex;align-items:center;transition:transform .2s}
+.chevron.closed{transform:rotate(-90deg)}
+.sol-code{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#F5A623;letter-spacing:.08em}
+.divider{height:16px;width:1px;background:#21262D;flex-shrink:0}
+.sol-meta{font-size:11px;color:#8B949E}
+.sol-meta span{color:#E6EDF3}
+.origen-tag{font-size:10px;padding:2px 8px;background:rgba(245,166,35,0.1);border-radius:4px;color:#8B949E;border:1px solid #30363D}
+.sol-right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.05em;white-space:nowrap}
+.badge-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.badge-pendiente{color:#F59E0B;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3)}
+.badge-enproceso{color:#3B82F6;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3)}
+.badge-completada{color:#10B981;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3)}
+.dot-pendiente{background:#F59E0B}
+.dot-enproceso{background:#3B82F6}
+.dot-completada{background:#10B981}
+.items-table{width:100%;border-collapse:collapse;font-size:12px}
+.items-table th{padding:8px 12px;text-align:left;font-size:9px;color:#484F58;letter-spacing:.12em;font-weight:600;border-bottom:1px solid #21262D;background:#0D1117}
+.items-table td{padding:9px 12px;border-bottom:1px solid #21262D}
+.items-table tr:last-child td{border-bottom:none}
+.admin-table{width:100%;border-collapse:collapse;font-size:12px}
+.admin-table th{padding:10px;text-align:left;font-size:9px;color:#484F58;letter-spacing:.12em;font-weight:600;white-space:nowrap;border-bottom:1px solid #21262D;background:#0D1117}
+.admin-table td{padding:8px 10px;border-bottom:1px solid #21262D;vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.btn-primary{background:#F5A623;color:#0D1117;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:700;letter-spacing:.08em}
+.btn-danger{background:#F85149;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:700}
+.btn-ghost{background:#21262D;color:#8B949E;border:1px solid #30363D;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600}
+.btn-sm-edit{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);border-radius:5px;padding:4px 8px;color:#F5A623}
+.btn-sm-del{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.2);border-radius:5px;padding:4px 8px;color:#F85149}
+.btn-sm-ok{background:#10B981;border:none;border-radius:5px;padding:4px 8px;color:#fff}
+.btn-sm-cancel{background:#30363D;border:none;border-radius:5px;padding:4px 8px;color:#8B949E}
+.action-wrap{display:flex;gap:4px}
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;background:#161B22;border:1px solid #21262D;border-radius:10px;padding:4px;width:fit-content;flex-wrap:wrap}
+.tab-btn{background:none;color:#8B949E;border:none;border-radius:7px;padding:7px 16px;font-size:11px;font-weight:400;letter-spacing:.08em}
+.tab-btn.active{background:#F5A623;color:#0D1117;font-weight:700}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:500}
+.modal-box{background:#161B22;border:1px solid #F85149;border-radius:12px;padding:32px;width:340px;text-align:center;animation:fadeIn .2s ease}
+.modal-icon{font-size:28px;margin-bottom:16px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.modal-sub{font-size:12px;color:#8B949E;margin-bottom:24px}
+.modal-btns{display:flex;gap:10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field label{font-size:10px;color:#8B949E;display:block;margin-bottom:4px;letter-spacing:.1em}
+.form-card{background:#161B22;border:1px solid #21262D;border-radius:10px;padding:28px;max-width:700px}
+.form-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;letter-spacing:.08em}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 56px)}
+.login-box{background:#161B22;border:1px solid #21262D;border-radius:12px;padding:40px;width:340px;text-align:center}
+.login-icon{font-size:28px;margin-bottom:16px}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.1em;margin-bottom:6px}
+.login-sub{font-size:11px;color:#484F58;margin-bottom:28px}
+.error-msg{color:#F85149;font-size:11px;margin-bottom:8px}
+.import-card{background:#161B22;border:1px solid #21262D;border-radius:10px;padding:28px;max-width:700px}
+.upload-btn{background:rgba(245,166,35,.1);border:1px dashed rgba(245,166,35,.4);border-radius:10px;padding:20px 32px;color:#F5A623;font-size:12px;letter-spacing:.1em;display:flex;align-items:center;gap:10px;width:100%;justify-content:center}
+#main{max-width:1400px;margin:0 auto;padding:24px 20px}
+.info-count{font-size:11px;color:#484F58;margin-bottom:12px;letter-spacing:.1em}
+.table-wrap{background:#161B22;border:1px solid #21262D;border-radius:10px;overflow:auto}
+.empty{text-align:center;padding:40px;color:#484F58;font-size:13px}
+.records{font-size:10px;color:#484F58;margin-top:8px}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useMemo } = React;
 
+<div id="header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo-box">&#128230;</div>
+    <div>
+      <div class="logo-title">SOLICITUDES</div>
+      <div class="logo-sub">SISTEMA DE SEGUIMIENTO &bull; MATERIALES &amp; SERVICIOS</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="btn-public" onclick="switchMode('public')">&#128065; VISTA P&Uacute;BLICA</button>
+    <button class="nav-tab" id="btn-admin" onclick="switchMode('admin')">&#128274; ADMINISTRADOR</button>
+  </div>
+</div>
 
-// ── SAMPLE DATA ──────────────────────────────────────────────────────────────
-const SAMPLE_DATA = [
-  { id: 1, codigo: "SOL-FAE-001-2025", centroCosto: "CC-1001", faena: "Faena Norte", solicitadoPor: "Juan Pérez", origen: "Faena", maquina: "", item: 1, cantidad: 5, unidad: "UN", descripcion: "Pernos hexagonales 1/2\"", estado: "Pendiente", documentos: "OC-2025-001", fechaIngreso: "2025-04-10" },
-  { id: 2, codigo: "SOL-FAE-001-2025", centroCosto: "CC-1001", faena: "Faena Norte", solicitadoPor: "Juan Pérez", origen: "Faena", maquina: "", item: 2, cantidad: 2, unidad: "CJ", descripcion: "Aceite hidráulico 15W40 balde 20L", estado: "En Proceso", documentos: "OC-2025-001", fechaIngreso: "2025-04-10" },
-  { id: 3, codigo: "SOL-FAE-001-2025", centroCosto: "CC-1001", faena: "Faena Norte", solicitadoPor: "Juan Pérez", origen: "Faena", maquina: "", item: 3, cantidad: 10, unidad: "M", descripcion: "Manguera hidráulica 3/4\" SAE100R2", estado: "Completada", documentos: "OC-2025-001", fechaIngreso: "2025-04-10" },
-  { id: 4, codigo: "SOL-BOD-002-2025", centroCosto: "CC-2001", faena: "Bodega Central", solicitadoPor: "María González", origen: "Bodega", maquina: "", item: 1, cantidad: 50, unidad: "UN", descripcion: "Guantes de seguridad talla L", estado: "Pendiente", documentos: "REQ-BOD-045", fechaIngreso: "2025-04-12" },
-  { id: 5, codigo: "SOL-BOD-002-2025", centroCosto: "CC-2001", faena: "Bodega Central", solicitadoPor: "María González", origen: "Bodega", maquina: "", item: 2, cantidad: 20, unidad: "UN", descripcion: "Casco seguridad tipo minero blanco", estado: "En Proceso", documentos: "REQ-BOD-045", fechaIngreso: "2025-04-12" },
-  { id: 6, codigo: "SOL-TAL-003-2025", centroCosto: "CC-3001", faena: "Taller Principal", solicitadoPor: "Carlos Ramírez", origen: "Taller", maquina: "", item: 1, cantidad: 1, unidad: "UN", descripcion: "Esmeril angular 7\" 2200W", estado: "Pendiente", documentos: "SOL-TAL-2025-12", fechaIngreso: "2025-04-14" },
-  { id: 7, codigo: "SOL-MAQ-004-2025", centroCosto: "CC-1001", faena: "Faena Norte", solicitadoPor: "Pedro Soto", origen: "Máquina", maquina: "CAT 336 #A12", item: 1, cantidad: 4, unidad: "UN", descripcion: "Filtro aceite motor Caterpillar 1R-0739", estado: "Completada", documentos: "PM-A12-042", fechaIngreso: "2025-04-15" },
-  { id: 8, codigo: "SOL-MAQ-004-2025", centroCosto: "CC-1001", faena: "Faena Norte", solicitadoPor: "Pedro Soto", origen: "Máquina", maquina: "CAT 336 #A12", item: 2, cantidad: 1, unidad: "UN", descripcion: "Filtro hidráulico Caterpillar 1G-8878", estado: "En Proceso", documentos: "PM-A12-042", fechaIngreso: "2025-04-15" },
-  { id: 9, codigo: "SOL-FAE-005-2025", centroCosto: "CC-4002", faena: "Faena Sur", solicitadoPor: "Ana Torres", origen: "Faena", maquina: "", item: 1, cantidad: 100, unidad: "M", descripcion: "Cable eléctrico THHN 12 AWG negro", estado: "Pendiente", documentos: "OC-2025-018", fechaIngreso: "2025-04-17" },
-  { id: 10, codigo: "SOL-FAE-005-2025", centroCosto: "CC-4002", faena: "Faena Sur", solicitadoPor: "Ana Torres", origen: "Faena", maquina: "", item: 2, cantidad: 2, unidad: "UN", descripcion: "Interruptor termomagnético 20A bifásico", estado: "Pendiente", documentos: "OC-2025-018", fechaIngreso: "2025-04-17" },
+<div id="main">
+  <div id="view-public" class="fadein">
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="filters">
+      <div class="filter-label">&#9660; FILTROS</div>
+      <div class="filters-grid">
+        <div class="filter-field"><label>C&oacute;digo Solicitud</label><input class="inp" id="f-codigo" placeholder="SOL-FAE-001..." oninput="renderPublic()"/></div>
+        <div class="filter-field"><label>Centro de Costo</label><select class="inp" id="f-cc" onchange="renderPublic()"><option value="">Todos</option></select></div>
+        <div class="filter-field"><label>Estado</label><select class="inp" id="f-estado" onchange="renderPublic()"><option value="">Todos</option><option>Pendiente</option><option>En Proceso</option><option>Completada</option></select></div>
+        <div class="filter-field"><label>Origen</label><select class="inp" id="f-origen" onchange="renderPublic()"><option value="">Todos</option></select></div>
+        <div class="filter-field"><label>Buscar &Iacute;tem / Descripci&oacute;n</label>
+          <div class="search-wrap"><span class="search-icon">&#128269;</span><input class="inp" id="f-item" placeholder="Filtro hidr&aacute;ulico, cable..." oninput="renderPublic()"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="info-count" id="info-count"></div>
+    <div id="solicitudes-list"></div>
+  </div>
+
+  <div id="view-login" class="hidden fadein">
+    <div class="login-wrap">
+      <div class="login-box">
+        <div class="login-icon">&#128274;</div>
+        <div class="login-title">ACCESO ADMINISTRADOR</div>
+        <div class="login-sub">Ingresa tu contrase&ntilde;a para continuar</div>
+        <input class="inp" type="password" id="login-pass" placeholder="Contrase&ntilde;a" style="margin-bottom:8px" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <div id="login-error" class="error-msg hidden">Contrase&ntilde;a incorrecta</div>
+        <button class="btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">INGRESAR</button>
+        <div style="font-size:10px;color:#30363D;margin-top:16px">Contrase&ntilde;a por defecto: admin2025</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-admin" class="hidden fadein">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="atab-tabla" onclick="switchAdminTab('tabla')">&#9999; GESTIONAR</button>
+      <button class="tab-btn" id="atab-importar" onclick="switchAdminTab('importar')">&#11014; IMPORTAR CSV</button>
+      <button class="tab-btn" id="atab-nuevo" onclick="switchAdminTab('nuevo')">&#10133; NUEVO &Iacute;TEM</button>
+      <button class="tab-btn" onclick="exportCSV()">&#11015; EXPORTAR</button>
+    </div>
+
+    <div id="admin-tabla">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="search-wrap" style="flex:1;min-width:200px"><span class="search-icon">&#128269;</span><input class="inp" id="a-search" placeholder="Buscar por c&oacute;digo o descripci&oacute;n..." oninput="renderAdmin()"/></div>
+        <select class="inp" id="a-cc" style="width:160px" onchange="renderAdmin()"><option value="">Centro de Costo</option></select>
+        <select class="inp" id="a-estado" style="width:140px" onchange="renderAdmin()"><option value="">Estado</option><option>Pendiente</option><option>En Proceso</option><option>Completada</option></select>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr>
+            <th>C&Oacute;DIGO</th><th>CC</th><th>FAENA</th><th>SOLICITADO POR</th><th>ORIGEN</th>
+            <th>&Iacute;T.</th><th>CANT.</th><th>UM</th><th>DESCRIPCI&Oacute;N</th><th>ESTADO</th>
+            <th>DOCS</th><th>FECHA</th><th>ACCIONES</th>
+          </tr></thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+        <div id="admin-empty" class="empty hidden">Sin resultados</div>
+      </div>
+      <div class="records" id="admin-records"></div>
+    </div>
+
+    <div id="admin-importar" class="hidden">
+      <div class="import-card">
+        <div class="form-title">IMPORTAR DESDE CSV / EXCEL</div>
+        <p style="font-size:11px;color:#8B949E;margin-bottom:20px;line-height:1.7">
+          Exporta tu Excel como <strong style="color:#F5A623">.CSV (separado por comas o punto y coma)</strong>.<br/>
+          Columnas esperadas:<br/>
+          <code style="color:#F5A623;font-size:10px">codigo &middot; centroCosto &middot; faena &middot; solicitadoPor &middot; origen &middot; maquina &middot; item &middot; cantidad &middot; unidad &middot; descripcion &middot; documentos &middot; fechaIngreso</code>
+        </p>
+        <input type="file" id="csv-file" accept=".csv,.txt" style="display:none" onchange="handleCSV(event)"/>
+        <button class="upload-btn" onclick="document.getElementById('csv-file').click()">&#11014; &nbsp;SELECCIONAR ARCHIVO CSV</button>
+        <div id="import-msg" style="margin-top:12px;font-size:11px;color:#8B949E"></div>
+        <div id="import-preview" class="hidden" style="margin-top:16px">
+          <div style="font-size:11px;color:#8B949E;margin-bottom:10px" id="preview-count"></div>
+          <div style="max-height:260px;overflow-y:auto;background:#0D1117;border-radius:8px;border:1px solid #30363D;margin-bottom:14px">
+            <table class="items-table"><thead><tr>
+              <th>C&oacute;digo</th><th>CC</th><th>Faena</th><th>Descripci&oacute;n</th><th>Estado</th>
+            </tr></thead><tbody id="preview-tbody"></tbody></table>
+          </div>
+          <button class="btn-primary" style="display:inline-flex;align-items:center;gap:8px" onclick="confirmImport()">&#10004; CONFIRMAR IMPORTACI&Oacute;N</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="admin-nuevo" class="hidden">
+      <div class="form-card">
+        <div class="form-title">AGREGAR NUEVO &Iacute;TEM</div>
+        <div class="form-grid">
+          <div class="form-field"><label>C&Oacute;DIGO SOLICITUD</label><input class="inp" id="n-codigo" placeholder="SOL-FAE-001-2025"/></div>
+          <div class="form-field"><label>CENTRO DE COSTO</label><input class="inp" id="n-cc" placeholder="CC-1001"/></div>
+          <div class="form-field"><label>FAENA / &Aacute;REA</label><input class="inp" id="n-faena" placeholder="Faena Norte"/></div>
+          <div class="form-field"><label>SOLICITADO POR</label><input class="inp" id="n-solicitado" placeholder="Juan P&eacute;rez"/></div>
+          <div class="form-field"><label>DOCUMENTOS ASOCIADOS</label><input class="inp" id="n-docs" placeholder="OC-2025-001"/></div>
+          <div class="form-field"><label>FECHA INGRESO</label><input class="inp" type="date" id="n-fecha"/></div>
+          <div class="form-field"><label>ORIGEN</label>
+            <select class="inp" id="n-origen"><option>Faena</option><option>Bodega</option><option>Taller</option><option>M&aacute;quina</option></select>
+          </div>
+          <div class="form-field"><label>M&Aacute;QUINA (si aplica)</label><input class="inp" id="n-maquina" placeholder="CAT 336 #A12"/></div>
+          <div class="form-field"><label>N&deg; &Iacute;TEM</label><input class="inp" type="number" id="n-item" value="1" min="1"/></div>
+          <div class="form-field"><label>ESTADO</label>
+            <select class="inp" id="n-estado"><option>Pendiente</option><option>En Proceso</option><option>Completada</option></select>
+          </div>
+          <div class="form-field"><label>CANTIDAD</label><input class="inp" type="number" id="n-cantidad" value="1" min="0" step="0.01"/></div>
+          <div class="form-field"><label>UNIDAD DE MEDIDA</label><input class="inp" id="n-unidad" placeholder="UN, KG, M, L..."/></div>
+        </div>
+        <div class="form-field" style="margin-top:14px"><label>DESCRIPCI&Oacute;N</label>
+          <input class="inp" id="n-desc" placeholder="Descripci&oacute;n del material, equipo, herramienta o servicio..."/>
+        </div>
+        <button class="btn-primary" style="margin-top:20px;display:inline-flex;align-items:center;gap:8px" onclick="addNew()">&#128190; GUARDAR &Iacute;TEM</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-delete" class="modal-bg hidden">
+  <div class="modal-box">
+    <div class="modal-icon">&#128465;</div>
+    <div class="modal-title">&iquest;ELIMINAR &Iacute;TEM?</div>
+    <div class="modal-sub">Esta acci&oacute;n no se puede deshacer.</div>
+    <div class="modal-btns">
+      <button class="btn-ghost" style="flex:1" onclick="closeModal()">CANCELAR</button>
+      <button class="btn-danger" style="flex:1" onclick="confirmDelete()">ELIMINAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var DATA=[
+  {id:1,codigo:"SOL-FAE-001-2025",centroCosto:"CC-1001",faena:"Faena Norte",solicitadoPor:"Juan P\u00e9rez",origen:"Faena",maquina:"",item:1,cantidad:5,unidad:"UN",descripcion:"Pernos hexagonales 1/2\"",estado:"Pendiente",documentos:"OC-2025-001",fechaIngreso:"2025-04-10"},
+  {id:2,codigo:"SOL-FAE-001-2025",centroCosto:"CC-1001",faena:"Faena Norte",solicitadoPor:"Juan P\u00e9rez",origen:"Faena",maquina:"",item:2,cantidad:2,unidad:"CJ",descripcion:"Aceite hidr\u00e1ulico 15W40 balde 20L",estado:"En Proceso",documentos:"OC-2025-001",fechaIngreso:"2025-04-10"},
+  {id:3,codigo:"SOL-FAE-001-2025",centroCosto:"CC-1001",faena:"Faena Norte",solicitadoPor:"Juan P\u00e9rez",origen:"Faena",maquina:"",item:3,cantidad:10,unidad:"M",descripcion:"Manguera hidr\u00e1ulica 3/4\" SAE100R2",estado:"Completada",documentos:"OC-2025-001",fechaIngreso:"2025-04-10"},
+  {id:4,codigo:"SOL-BOD-002-2025",centroCosto:"CC-2001",faena:"Bodega Central",solicitadoPor:"Mar\u00eda Gonz\u00e1lez",origen:"Bodega",maquina:"",item:1,cantidad:50,unidad:"UN",descripcion:"Guantes de seguridad talla L",estado:"Pendiente",documentos:"REQ-BOD-045",fechaIngreso:"2025-04-12"},
+  {id:5,codigo:"SOL-BOD-002-2025",centroCosto:"CC-2001",faena:"Bodega Central",solicitadoPor:"Mar\u00eda Gonz\u00e1lez",origen:"Bodega",maquina:"",item:2,cantidad:20,unidad:"UN",descripcion:"Casco seguridad tipo minero blanco",estado:"En Proceso",documentos:"REQ-BOD-045",fechaIngreso:"2025-04-12"},
+  {id:6,codigo:"SOL-TAL-003-2025",centroCosto:"CC-3001",faena:"Taller Principal",solicitadoPor:"Carlos Ram\u00edrez",origen:"Taller",maquina:"",item:1,cantidad:1,unidad:"UN",descripcion:"Esmeril angular 7\" 2200W",estado:"Pendiente",documentos:"SOL-TAL-2025-12",fechaIngreso:"2025-04-14"},
+  {id:7,codigo:"SOL-MAQ-004-2025",centroCosto:"CC-1001",faena:"Faena Norte",solicitadoPor:"Pedro Soto",origen:"M\u00e1quina",maquina:"CAT 336 #A12",item:1,cantidad:4,unidad:"UN",descripcion:"Filtro aceite motor Caterpillar 1R-0739",estado:"Completada",documentos:"PM-A12-042",fechaIngreso:"2025-04-15"},
+  {id:8,codigo:"SOL-MAQ-004-2025",centroCosto:"CC-1001",faena:"Faena Norte",solicitadoPor:"Pedro Soto",origen:"M\u00e1quina",maquina:"CAT 336 #A12",item:2,cantidad:1,unidad:"UN",descripcion:"Filtro hidr\u00e1ulico Caterpillar 1G-8878",estado:"En Proceso",documentos:"PM-A12-042",fechaIngreso:"2025-04-15"},
+  {id:9,codigo:"SOL-FAE-005-2025",centroCosto:"CC-4002",faena:"Faena Sur",solicitadoPor:"Ana Torres",origen:"Faena",maquina:"",item:1,cantidad:100,unidad:"M",descripcion:"Cable el\u00e9ctrico THHN 12 AWG negro",estado:"Pendiente",documentos:"OC-2025-018",fechaIngreso:"2025-04-17"},
+  {id:10,codigo:"SOL-FAE-005-2025",centroCosto:"CC-4002",faena:"Faena Sur",solicitadoPor:"Ana Torres",origen:"Faena",maquina:"",item:2,cantidad:2,unidad:"UN",descripcion:"Interruptor termom\u00e9trico 20A bif\u00e1sico",estado:"Pendiente",documentos:"OC-2025-018",fechaIngreso:"2025-04-17"}
 ];
+var PASS="admin2025",adminAuthed=false,expandedCodes={},deleteTargetId=null,importBuffer=null,editingId=null;
 
-const ESTADOS = ["Pendiente", "En Proceso", "Completada"];
-const ORIGENES = ["Faena", "Bodega", "Taller", "Máquina"];
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function todayStr(){return new Date().toISOString().split("T")[0];}
+function nextId(){return DATA.length?Math.max.apply(null,DATA.map(function(d){return d.id;}))+1:1;}
+function badge(e){var k=e.replace(" ","").toLowerCase();return '<span class="badge badge-'+k+'"><span class="badge-dot dot-'+k+'"></span>'+e.toUpperCase()+'</span>';}
+function el(id){return document.getElementById(id);}
 
-const ESTADO_CONFIG = {
-  "Pendiente":   { color: "#F59E0B", bg: "rgba(245,158,11,0.12)", dot: "#F59E0B" },
-  "En Proceso":  { color: "#3B82F6", bg: "rgba(59,130,246,0.12)", dot: "#3B82F6" },
-  "Completada":  { color: "#10B981", bg: "rgba(16,185,129,0.12)", dot: "#10B981" },
-};
-
-// ── PARSE EXCEL/CSV ────────────────────────────────────────────────────────────
-function parseCSV(text) {
-  const lines = text.trim().split("
-");
-  if (lines.length < 2) return [];
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const headers = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const vals = lines[i].split(sep).map(v => v.trim().replace(/^"|"$/g, ""));
-    if (vals.every(v => !v)) continue;
-    const obj = {};
-    headers.forEach((h, idx) => { obj[h] = vals[idx] || ""; });
-    rows.push(obj);
-  }
-  return rows;
+function switchMode(m){
+  el("btn-public").classList.toggle("active",m==="public");
+  el("btn-admin").classList.toggle("active",m==="admin");
+  el("view-public").classList.toggle("hidden",m!=="public");
+  el("view-login").classList.toggle("hidden",m!=="admin"||adminAuthed);
+  el("view-admin").classList.toggle("hidden",m!=="admin"||!adminAuthed);
+  if(m==="public") renderPublic();
+  if(m==="admin"&&adminAuthed) renderAdmin();
 }
 
-function mapRow(raw, idx, existingIds) {
-  const get = (...keys) => {
-    for (const k of keys) {
-      const match = Object.keys(raw).find(rk => rk.includes(k));
-      if (match && raw[match]) return raw[match];
-    }
-    return "";
-  };
-  const newId = (existingIds.length ? Math.max(...existingIds) : 0) + idx + 1;
-  return {
-    id: newId,
-    codigo: get("codigo", "sol", "code"),
-    centroCosto: get("centrocosto", "centro", "cc"),
-    faena: get("faena", "obra", "proyecto"),
-    solicitadoPor: get("solicitado", "solicitante", "por"),
-    origen: get("origen", "area", "tipo"),
-    maquina: get("maquina", "equipo"),
-    item: parseInt(get("item", "nitem", "n")) || idx + 1,
-    cantidad: parseFloat(get("cantidad", "cant", "qty")) || 0,
-    unidad: get("unidad", "um", "ud"),
-    descripcion: get("descripcion", "desc", "nombre"),
-    estado: "Pendiente",
-    documentos: get("documento", "doc", "oc", "ref"),
-    fechaIngreso: new Date().toISOString().split("T")[0],
-  };
+function doLogin(){
+  if(el("login-pass").value===PASS){
+    adminAuthed=true;
+    el("login-error").classList.add("hidden");
+    el("view-login").classList.add("hidden");
+    el("view-admin").classList.remove("hidden");
+    renderAdmin();
+  } else {el("login-error").classList.remove("hidden");}
 }
 
-// ── ICONS ──────────────────────────────────────────────────────────────────────
-const Icon = ({ name, size = 16 }) => {
-  const icons = {
-    search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
-    filter: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
-    upload: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-    edit: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
-    trash: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>,
-    eye: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
-    lock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-    unlock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>,
-    chevron: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>,
-    plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-    x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-    check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
-    file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
-    box: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
-    save: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
-    download: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-  };
-  return icons[name] || null;
-};
-
-// ── BADGE ESTADO ──────────────────────────────────────────────────────────────
-const EstadoBadge = ({ estado }) => {
-  const cfg = ESTADO_CONFIG[estado] || { color: "#888", bg: "rgba(136,136,136,0.1)", dot: "#888" };
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "3px 10px", borderRadius: 20,
-      background: cfg.bg, color: cfg.color,
-      fontSize: 11, fontWeight: 700, letterSpacing: "0.05em",
-      border: `1px solid ${cfg.color}30`,
-      whiteSpace: "nowrap"
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, display: "inline-block" }} />
-      {estado.toUpperCase()}
-    </span>
-  );
-};
-
-// ── MAIN APP ──────────────────────────────────────────────────────────────────
-function App() {
-  const [data, setData] = useState(SAMPLE_DATA);
-  const [mode, setMode] = useState("public"); // "public" | "admin"
-  const [adminPass, setAdminPass] = useState("");
-  const [adminAuthed, setAdminAuthed] = useState(false);
-  const [passError, setPassError] = useState(false);
-  const PASS = "admin2025";
-
-  const handleLogin = () => {
-    if (adminPass === PASS) { setAdminAuthed(true); setPassError(false); }
-    else { setPassError(true); }
-  };
-
-  return (
-    <div style={{ minHeight: "100vh", background: "#0D1117", color: "#E6EDF3", fontFamily: "'IBM Plex Mono', 'Courier New', monospace" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #161B22; }
-        ::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #F5A623; }
-        input, select { outline: none; }
-        input::placeholder { color: #484F58; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
-        .row-hover:hover { background: rgba(245,166,35,0.05) !important; }
-        .btn-hover:hover { opacity: 0.85; transform: translateY(-1px); }
-        .tab-active { border-bottom: 2px solid #F5A623 !important; color: #F5A623 !important; }
-      `}</style>
-
-      {/* HEADER */}
-      <header style={{ background: "#161B22", borderBottom: "1px solid #21262D", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 32, height: 32, background: "#F5A623", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon name="box" size={18} />
-          </div>
-          <div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, letterSpacing: "0.08em", color: "#F5A623" }}>SOLICITUDES</div>
-            <div style={{ fontSize: 9, color: "#484F58", letterSpacing: "0.15em" }}>SISTEMA DE SEGUIMIENTO • MATERIALES & SERVICIOS</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => setMode("public")} className={`btn-hover tab-${mode==="public"?"active":""}`.trim()} style={{ background: "none", border: "none", color: mode==="public" ? "#F5A623" : "#8B949E", cursor: "pointer", padding: "8px 14px", fontSize: 11, letterSpacing: "0.1em", fontFamily: "inherit", borderBottom: mode==="public" ? "2px solid #F5A623" : "2px solid transparent", transition: "all 0.2s" }}>
-            <Icon name="eye" size={13} /> &nbsp;VISTA PÚBLICA
-          </button>
-          <button onClick={() => setMode("admin")} style={{ background: "none", border: "none", color: mode==="admin" ? "#F5A623" : "#8B949E", cursor: "pointer", padding: "8px 14px", fontSize: 11, letterSpacing: "0.1em", fontFamily: "inherit", borderBottom: mode==="admin" ? "2px solid #F5A623" : "2px solid transparent", transition: "all 0.2s" }}>
-            <Icon name={adminAuthed ? "unlock" : "lock"} size={13} /> &nbsp;ADMINISTRADOR
-          </button>
-        </div>
-      </header>
-
-      {mode === "public"
-        ? <PublicView data={data} />
-        : adminAuthed
-          ? <AdminView data={data} setData={setData} />
-          : <LoginView pass={adminPass} setPass={setAdminPass} onLogin={handleLogin} error={passError} />
-      }
-    </div>
-  );
+function switchAdminTab(t){
+  ["tabla","importar","nuevo"].forEach(function(tab){
+    el("admin-"+tab).classList.toggle("hidden",tab!==t);
+    el("atab-"+tab).classList.toggle("active",tab===t);
+  });
 }
 
-// ── LOGIN ──────────────────────────────────────────────────────────────────────
-function LoginView({ pass, setPass, onLogin, error }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "calc(100vh - 56px)", animation: "fadeIn 0.4s ease" }}>
-      <div style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 12, padding: 40, width: 340, textAlign: "center" }}>
-        <div style={{ width: 56, height: 56, background: "rgba(245,166,35,0.1)", border: "1px solid rgba(245,166,35,0.3)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: "#F5A623" }}>
-          <Icon name="lock" size={24} />
-        </div>
-        <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 800, letterSpacing: "0.1em", marginBottom: 6 }}>ACCESO ADMINISTRADOR</div>
-        <div style={{ fontSize: 11, color: "#484F58", marginBottom: 28 }}>Ingresa tu contraseña para continuar</div>
-        <input
-          type="password" value={pass} onChange={e => setPass(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && onLogin()}
-          placeholder="Contraseña"
-          style={{ width: "100%", background: "#0D1117", border: `1px solid ${error ? "#F85149" : "#30363D"}`, borderRadius: 8, padding: "10px 14px", color: "#E6EDF3", fontSize: 13, fontFamily: "inherit", marginBottom: 8 }}
-        />
-        {error && <div style={{ color: "#F85149", fontSize: 11, marginBottom: 8 }}>Contraseña incorrecta</div>}
-        <button onClick={onLogin} className="btn-hover" style={{ width: "100%", background: "#F5A623", color: "#0D1117", border: "none", borderRadius: 8, padding: "10px", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.1em", fontFamily: "inherit", transition: "all 0.2s", marginTop: 8 }}>
-          INGRESAR
-        </button>
-        <div style={{ fontSize: 10, color: "#30363D", marginTop: 16 }}>Contraseña por defecto: admin2025</div>
-      </div>
-    </div>
-  );
+function populateSelects(){
+  var ccs=[],origs=[];
+  DATA.forEach(function(d){if(ccs.indexOf(d.centroCosto)<0) ccs.push(d.centroCosto); if(d.origen&&origs.indexOf(d.origen)<0) origs.push(d.origen);});
+  ccs.sort(); origs.sort();
+  ["f-cc","a-cc"].forEach(function(id){
+    var sel=el(id); if(!sel) return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">'+(id==="f-cc"?"Todos":"Centro de Costo")+'</option>';
+    ccs.forEach(function(cc){var o=document.createElement("option");o.value=cc;o.textContent=cc;sel.appendChild(o);});
+    sel.value=cur;
+  });
+  var fo=el("f-origen"); if(!fo) return;
+  var curO=fo.value;
+  fo.innerHTML='<option value="">Todos</option>';
+  origs.forEach(function(o){var opt=document.createElement("option");opt.value=o;opt.textContent=o;fo.appendChild(opt);});
+  fo.value=curO;
 }
 
-// ── PUBLIC VIEW ────────────────────────────────────────────────────────────────
-function PublicView({ data }) {
-  const [searchCodigo, setSearchCodigo] = useState("");
-  const [filtCC, setFiltCC] = useState("");
-  const [filtEstado, setFiltEstado] = useState("");
-  const [filtOrigen, setFiltOrigen] = useState("");
-  const [filtItem, setFiltItem] = useState("");
-  const [expandedCodes, setExpandedCodes] = useState({});
-
-  const centrosCosto = useMemo(() => [...new Set(data.map(d => d.centroCosto))].sort(), [data]);
-  const origenes = useMemo(() => [...new Set(data.map(d => d.origen))].filter(Boolean).sort(), [data]);
-
-  const filtered = useMemo(() => {
-    return data.filter(r => {
-      if (searchCodigo && !r.codigo.toLowerCase().includes(searchCodigo.toLowerCase())) return false;
-      if (filtCC && r.centroCosto !== filtCC) return false;
-      if (filtEstado && r.estado !== filtEstado) return false;
-      if (filtOrigen && r.origen !== filtOrigen) return false;
-      if (filtItem && !r.descripcion.toLowerCase().includes(filtItem.toLowerCase())) return false;
-      return true;
-    });
-  }, [data, searchCodigo, filtCC, filtEstado, filtOrigen, filtItem]);
-
-  // Group by codigo
-  const grouped = useMemo(() => {
-    const map = {};
-    filtered.forEach(r => {
-      if (!map[r.codigo]) map[r.codigo] = [];
-      map[r.codigo].push(r);
-    });
-    return map;
-  }, [filtered]);
-
-  const stats = useMemo(() => ({
-    total: data.length,
-    pendiente: data.filter(d => d.estado === "Pendiente").length,
-    enProceso: data.filter(d => d.estado === "En Proceso").length,
-    completada: data.filter(d => d.estado === "Completada").length,
-  }), [data]);
-
-  const toggleCode = (codigo) => setExpandedCodes(prev => ({ ...prev, [codigo]: !prev[codigo] }));
-
-  const inputStyle = { background: "#0D1117", border: "1px solid #30363D", borderRadius: 7, padding: "7px 12px", color: "#E6EDF3", fontSize: 12, fontFamily: "inherit", width: "100%" };
-  const selectStyle = { ...inputStyle, cursor: "pointer" };
-
-  return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 20px", animation: "fadeIn 0.4s ease" }}>
-      {/* STATS */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }}>
-        {[
-          { label: "TOTAL ÍTEMS", val: stats.total, color: "#8B949E" },
-          { label: "PENDIENTE", val: stats.pendiente, color: "#F59E0B" },
-          { label: "EN PROCESO", val: stats.enProceso, color: "#3B82F6" },
-          { label: "COMPLETADA", val: stats.completada, color: "#10B981" },
-        ].map(s => (
-          <div key={s.label} style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, padding: "16px 20px" }}>
-            <div style={{ fontSize: 9, color: "#484F58", letterSpacing: "0.15em", marginBottom: 6 }}>{s.label}</div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 32, fontWeight: 800, color: s.color }}>{s.val}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* FILTERS */}
-      <div style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, padding: 16, marginBottom: 20 }}>
-        <div style={{ fontSize: 10, color: "#484F58", letterSpacing: "0.15em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-          <Icon name="filter" size={12} /> FILTROS
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr 1.5fr", gap: 10 }}>
-          <div>
-            <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 4 }}>Código Solicitud</div>
-            <input value={searchCodigo} onChange={e => setSearchCodigo(e.target.value)} placeholder="SOL-FAE-001..." style={inputStyle} />
-          </div>
-          <div>
-            <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 4 }}>Centro de Costo</div>
-            <select value={filtCC} onChange={e => setFiltCC(e.target.value)} style={selectStyle}>
-              <option value="">Todos</option>
-              {centrosCosto.map(cc => <option key={cc}>{cc}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 4 }}>Estado</div>
-            <select value={filtEstado} onChange={e => setFiltEstado(e.target.value)} style={selectStyle}>
-              <option value="">Todos</option>
-              {ESTADOS.map(e => <option key={e}>{e}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 4 }}>Origen</div>
-            <select value={filtOrigen} onChange={e => setFiltOrigen(e.target.value)} style={selectStyle}>
-              <option value="">Todos</option>
-              {origenes.map(o => <option key={o}>{o}</option>)}
-            </select>
-          </div>
-          <div>
-            <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 4 }}>Buscar Ítem / Descripción</div>
-            <div style={{ position: "relative" }}>
-              <input value={filtItem} onChange={e => setFiltItem(e.target.value)} placeholder="Filtro hidráulico, cable..." style={{ ...inputStyle, paddingLeft: 32 }} />
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#484F58" }}><Icon name="search" size={13} /></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* SOLICITUDES AGRUPADAS */}
-      <div style={{ fontSize: 11, color: "#484F58", marginBottom: 12, letterSpacing: "0.1em" }}>
-        {Object.keys(grouped).length} solicitud(es) · {filtered.length} ítem(s)
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {Object.entries(grouped).map(([codigo, items]) => {
-          const first = items[0];
-          const isOpen = expandedCodes[codigo] !== false; // default open
-          const allEstados = [...new Set(items.map(i => i.estado))];
-          return (
-            <div key={codigo} style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, overflow: "hidden" }}>
-              {/* HEADER ROW */}
-              <div onClick={() => toggleCode(codigo)} style={{ padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, background: isOpen ? "rgba(245,166,35,0.04)" : "transparent", transition: "background 0.2s" }}>
-                <span style={{ color: "#484F58", transition: "transform 0.2s", transform: isOpen ? "rotate(0deg)" : "rotate(-90deg)", display: "inline-flex" }}><Icon name="chevron" size={14} /></span>
-                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: "#F5A623", letterSpacing: "0.08em" }}>{codigo}</div>
-                <div style={{ height: 16, width: 1, background: "#21262D" }} />
-                <div style={{ fontSize: 11, color: "#8B949E" }}>{first.faena}</div>
-                <div style={{ height: 16, width: 1, background: "#21262D" }} />
-                <div style={{ fontSize: 11, color: "#8B949E" }}>{first.centroCosto}</div>
-                <div style={{ height: 16, width: 1, background: "#21262D" }} />
-                <div style={{ fontSize: 11, color: "#8B949E" }}>Solicitado por: <span style={{ color: "#E6EDF3" }}>{first.solicitadoPor}</span></div>
-                {first.maquina && <><div style={{ height: 16, width: 1, background: "#21262D" }} /><div style={{ fontSize: 11, color: "#8B949E" }}>Máq: <span style={{ color: "#E6EDF3" }}>{first.maquina}</span></div></>}
-                <div style={{ height: 16, width: 1, background: "#21262D" }} />
-                <div style={{ fontSize: 11 }}>
-                  <span style={{ padding: "2px 8px", background: "rgba(245,166,35,0.1)", borderRadius: 4, color: "#8B949E", border: "1px solid #30363D" }}>{first.origen}</span>
-                </div>
-                <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
-                  {allEstados.map(e => <EstadoBadge key={e} estado={e} />)}
-                  <span style={{ fontSize: 10, color: "#484F58", marginLeft: 4 }}>{items.length} ítem{items.length > 1 ? "s" : ""}</span>
-                </div>
-              </div>
-              {/* ITEMS TABLE */}
-              {isOpen && (
-                <div style={{ borderTop: "1px solid #21262D" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                    <thead>
-                      <tr style={{ background: "#0D1117" }}>
-                        {["N° ÍTEM", "CANT.", "UM", "DESCRIPCIÓN", "ESTADO", "DOCUMENTOS", "FECHA"].map(h => (
-                          <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 9, color: "#484F58", letterSpacing: "0.12em", fontWeight: 600, borderBottom: "1px solid #21262D" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.sort((a, b) => a.item - b.item).map((row, i) => (
-                        <tr key={row.id} className="row-hover" style={{ borderBottom: i < items.length - 1 ? "1px solid #21262D" : "none", background: "transparent", transition: "background 0.15s" }}>
-                          <td style={{ padding: "9px 12px", color: "#F5A623", fontWeight: 600 }}>{row.item}</td>
-                          <td style={{ padding: "9px 12px", color: "#E6EDF3" }}>{row.cantidad}</td>
-                          <td style={{ padding: "9px 12px", color: "#8B949E" }}>{row.unidad}</td>
-                          <td style={{ padding: "9px 12px", color: "#E6EDF3", maxWidth: 400 }}>{row.descripcion}</td>
-                          <td style={{ padding: "9px 12px" }}><EstadoBadge estado={row.estado} /></td>
-                          <td style={{ padding: "9px 12px", color: "#8B949E", fontSize: 11 }}>{row.documentos || "—"}</td>
-                          <td style={{ padding: "9px 12px", color: "#484F58", fontSize: 11 }}>{row.fechaIngreso}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          );
-        })}
-        {Object.keys(grouped).length === 0 && (
-          <div style={{ textAlign: "center", padding: 60, color: "#484F58" }}>
-            <Icon name="box" size={32} />
-            <div style={{ marginTop: 12, fontSize: 13 }}>No hay solicitudes con esos filtros</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function renderStats(){
+  var pend=0,proc=0,comp=0;
+  DATA.forEach(function(d){if(d.estado==="Pendiente")pend++;else if(d.estado==="En Proceso")proc++;else if(d.estado==="Completada")comp++;});
+  el("stats-grid").innerHTML=[
+    {label:"TOTAL \u00cdTEMS",val:DATA.length,color:"#8B949E"},
+    {label:"PENDIENTE",val:pend,color:"#F59E0B"},
+    {label:"EN PROCESO",val:proc,color:"#3B82F6"},
+    {label:"COMPLETADA",val:comp,color:"#10B981"}
+  ].map(function(s){return '<div class="stat-card"><div class="stat-label">'+s.label+'</div><div class="stat-val" style="color:'+s.color+'">'+s.val+'</div></div>';}).join("");
 }
 
-// ── ADMIN VIEW ────────────────────────────────────────────────────────────────
-function AdminView({ data, setData }) {
-  const [tab, setTab] = useState("tabla"); // "tabla" | "importar" | "nuevo"
-  const [editingId, setEditingId] = useState(null);
-  const [editEstado, setEditEstado] = useState({});
-  const fileRef = useRef();
-  const [importPreview, setImportPreview] = useState(null);
-  const [importMsg, setImportMsg] = useState("");
-  const [newForm, setNewForm] = useState({ codigo:"", centroCosto:"", faena:"", solicitadoPor:"", origen:"Faena", maquina:"", item:1, cantidad:1, unidad:"UN", descripcion:"", estado:"Pendiente", documentos:"", fechaIngreso: new Date().toISOString().split("T")[0] });
-  const [filtCC2, setFiltCC2] = useState("");
-  const [filtEst2, setFiltEst2] = useState("");
-  const [search2, setSearch2] = useState("");
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-
-  const centrosCosto = useMemo(() => [...new Set(data.map(d => d.centroCosto))].sort(), [data]);
-
-  const filteredAdmin = useMemo(() => data.filter(r => {
-    if (filtCC2 && r.centroCosto !== filtCC2) return false;
-    if (filtEst2 && r.estado !== filtEst2) return false;
-    if (search2 && !r.codigo.toLowerCase().includes(search2.toLowerCase()) && !r.descripcion.toLowerCase().includes(search2.toLowerCase())) return false;
+function getFiltered(){
+  var codigo=(el("f-codigo")||{}).value||"";
+  var cc=(el("f-cc")||{}).value||"";
+  var estado=(el("f-estado")||{}).value||"";
+  var origen=(el("f-origen")||{}).value||"";
+  var item=(el("f-item")||{}).value||"";
+  return DATA.filter(function(r){
+    if(codigo&&r.codigo.toLowerCase().indexOf(codigo.toLowerCase())<0) return false;
+    if(cc&&r.centroCosto!==cc) return false;
+    if(estado&&r.estado!==estado) return false;
+    if(origen&&r.origen!==origen) return false;
+    if(item&&r.descripcion.toLowerCase().indexOf(item.toLowerCase())<0) return false;
     return true;
-  }), [data, filtCC2, filtEst2, search2]);
-
-  const saveEstado = (id) => {
-    setData(prev => prev.map(r => r.id === id ? { ...r, estado: editEstado[id] || r.estado } : r));
-    setEditingId(null);
-  };
-
-  const deleteRow = (id) => {
-    setData(prev => prev.filter(r => r.id !== id));
-    setConfirmDeleteId(null);
-  };
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target.result;
-      const rows = parseCSV(text);
-      const mapped = rows.map((r, i) => mapRow(r, i, data.map(d => d.id)));
-      setImportPreview(mapped);
-      setImportMsg(`${mapped.length} filas detectadas`);
-    };
-    reader.readAsText(file, "UTF-8");
-    e.target.value = "";
-  };
-
-  const confirmImport = () => {
-    if (!importPreview) return;
-    setData(prev => [...prev, ...importPreview]);
-    setImportPreview(null);
-    setImportMsg("✓ Importación exitosa");
-    setTab("tabla");
-  };
-
-  const addNew = () => {
-    const id = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
-    setData(prev => [...prev, { ...newForm, id }]);
-    setNewForm({ codigo:"", centroCosto:"", faena:"", solicitadoPor:"", origen:"Faena", maquina:"", item:1, cantidad:1, unidad:"UN", descripcion:"", estado:"Pendiente", documentos:"", fechaIngreso: new Date().toISOString().split("T")[0] });
-    setTab("tabla");
-  };
-
-  const exportCSV = () => {
-    const headers = ["codigo","centroCosto","faena","solicitadoPor","origen","maquina","item","cantidad","unidad","descripcion","estado","documentos","fechaIngreso"];
-    const rows = [headers.join(";"), ...data.map(r => headers.map(h => r[h] ?? "").join(";"))];
-    const blob = new Blob([rows.join("
-")], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "solicitudes_export.csv"; a.click();
-  };
-
-  const inputStyle = { background: "#0D1117", border: "1px solid #30363D", borderRadius: 7, padding: "7px 12px", color: "#E6EDF3", fontSize: 12, fontFamily: "inherit", width: "100%" };
-  const selectStyle = { ...inputStyle, cursor: "pointer" };
-  const labelStyle = { fontSize: 10, color: "#8B949E", marginBottom: 4 };
-
-  return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 20px", animation: "fadeIn 0.4s ease" }}>
-      {/* ADMIN TABS */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "#161B22", border: "1px solid #21262D", borderRadius: 10, padding: 4, width: "fit-content" }}>
-        {[["tabla","Gestionar Tabla","edit"],["importar","Importar CSV","upload"],["nuevo","Nuevo Ítem","plus"]].map(([t,label,icon]) => (
-          <button key={t} onClick={() => setTab(t)} style={{ background: tab===t ? "#F5A623" : "none", color: tab===t ? "#0D1117" : "#8B949E", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: tab===t ? 700 : 400, letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}>
-            <Icon name={icon} size={12} /> {label.toUpperCase()}
-          </button>
-        ))}
-        <button onClick={exportCSV} className="btn-hover" style={{ background: "none", color: "#8B949E", border: "none", borderRadius: 7, padding: "7px 16px", fontSize: 11, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 6, marginLeft: "auto", transition: "all 0.2s" }}>
-          <Icon name="download" size={12} /> EXPORTAR
-        </button>
-      </div>
-
-      {/* TAB: TABLA */}
-      {tab === "tabla" && (
-        <div>
-          <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-            <div style={{ position: "relative", flex: 1 }}>
-              <input value={search2} onChange={e => setSearch2(e.target.value)} placeholder="Buscar por código o descripción..." style={{ ...inputStyle, paddingLeft: 32 }} />
-              <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#484F58" }}><Icon name="search" size={13} /></span>
-            </div>
-            <select value={filtCC2} onChange={e => setFiltCC2(e.target.value)} style={{ ...selectStyle, width: 160 }}>
-              <option value="">Centro de Costo</option>
-              {centrosCosto.map(cc => <option key={cc}>{cc}</option>)}
-            </select>
-            <select value={filtEst2} onChange={e => setFiltEst2(e.target.value)} style={{ ...selectStyle, width: 140 }}>
-              <option value="">Estado</option>
-              {ESTADOS.map(e => <option key={e}>{e}</option>)}
-            </select>
-          </div>
-          <div style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: "#0D1117" }}>
-                  {["CÓDIGO","CC","FAENA","SOLICITADO POR","ORIGEN","ÍT.","CANT.","UM","DESCRIPCIÓN","ESTADO","DOCS","FECHA","ACCIONES"].map(h => (
-                    <th key={h} style={{ padding: "10px 10px", textAlign: "left", fontSize: 9, color: "#484F58", letterSpacing: "0.12em", fontWeight: 600, whiteSpace: "nowrap", borderBottom: "1px solid #21262D" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAdmin.map((row, i) => (
-                  <tr key={row.id} className="row-hover" style={{ borderBottom: i < filteredAdmin.length - 1 ? "1px solid #21262D" : "none", background: "transparent" }}>
-                    <td style={{ padding: "8px 10px", color: "#F5A623", fontWeight: 600, whiteSpace: "nowrap" }}>{row.codigo}</td>
-                    <td style={{ padding: "8px 10px", color: "#8B949E", whiteSpace: "nowrap" }}>{row.centroCosto}</td>
-                    <td style={{ padding: "8px 10px", color: "#E6EDF3", whiteSpace: "nowrap" }}>{row.faena}</td>
-                    <td style={{ padding: "8px 10px", color: "#8B949E", whiteSpace: "nowrap" }}>{row.solicitadoPor}</td>
-                    <td style={{ padding: "8px 10px" }}><span style={{ fontSize: 10, padding: "2px 7px", background: "rgba(139,148,158,0.1)", border: "1px solid #30363D", borderRadius: 4, color: "#8B949E" }}>{row.origen}</span></td>
-                    <td style={{ padding: "8px 10px", color: "#F5A623" }}>{row.item}</td>
-                    <td style={{ padding: "8px 10px", color: "#E6EDF3" }}>{row.cantidad}</td>
-                    <td style={{ padding: "8px 10px", color: "#8B949E" }}>{row.unidad}</td>
-                    <td style={{ padding: "8px 10px", color: "#E6EDF3", maxWidth: 280 }}>{row.descripcion}</td>
-                    <td style={{ padding: "8px 10px" }}>
-                      {editingId === row.id ? (
-                        <select value={editEstado[row.id] || row.estado} onChange={e => setEditEstado(p => ({ ...p, [row.id]: e.target.value }))}
-                          style={{ background: "#0D1117", border: "1px solid #F5A623", borderRadius: 6, padding: "3px 8px", color: "#E6EDF3", fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}>
-                          {ESTADOS.map(e => <option key={e}>{e}</option>)}
-                        </select>
-                      ) : <EstadoBadge estado={row.estado} />}
-                    </td>
-                    <td style={{ padding: "8px 10px", color: "#8B949E", fontSize: 11 }}>{row.documentos || "—"}</td>
-                    <td style={{ padding: "8px 10px", color: "#484F58", fontSize: 11, whiteSpace: "nowrap" }}>{row.fechaIngreso}</td>
-                    <td style={{ padding: "8px 10px", whiteSpace: "nowrap" }}>
-                      <div style={{ display: "flex", gap: 4 }}>
-                        {editingId === row.id ? (
-                          <>
-                            <button onClick={() => saveEstado(row.id)} style={{ background: "#10B981", border: "none", borderRadius: 5, padding: "4px 8px", color: "#fff", cursor: "pointer", fontSize: 10 }}><Icon name="check" size={11} /></button>
-                            <button onClick={() => setEditingId(null)} style={{ background: "#30363D", border: "none", borderRadius: 5, padding: "4px 8px", color: "#8B949E", cursor: "pointer", fontSize: 10 }}><Icon name="x" size={11} /></button>
-                          </>
-                        ) : (
-                          <>
-                            <button onClick={() => { setEditingId(row.id); setEditEstado(p => ({ ...p, [row.id]: row.estado })); }} style={{ background: "rgba(245,166,35,0.1)", border: "1px solid rgba(245,166,35,0.2)", borderRadius: 5, padding: "4px 8px", color: "#F5A623", cursor: "pointer" }} title="Editar estado"><Icon name="edit" size={11} /></button>
-                            <button onClick={() => setConfirmDeleteId(row.id)} style={{ background: "rgba(248,81,73,0.1)", border: "1px solid rgba(248,81,73,0.2)", borderRadius: 5, padding: "4px 8px", color: "#F85149", cursor: "pointer" }} title="Eliminar"><Icon name="trash" size={11} /></button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filteredAdmin.length === 0 && <div style={{ textAlign: "center", padding: 40, color: "#484F58" }}>Sin resultados</div>}
-          </div>
-          <div style={{ fontSize: 10, color: "#484F58", marginTop: 8 }}>{filteredAdmin.length} de {data.length} registros</div>
-        </div>
-      )}
-
-      {/* MODAL CONFIRMAR ELIMINACIÓN */}
-      {confirmDeleteId !== null && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <div style={{ background: "#161B22", border: "1px solid #F85149", borderRadius: 12, padding: 32, width: 340, textAlign: "center", animation: "fadeIn 0.2s ease" }}>
-            <div style={{ width: 48, height: 48, background: "rgba(248,81,73,0.1)", border: "1px solid rgba(248,81,73,0.3)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "#F85149" }}>
-              <Icon name="trash" size={22} />
-            </div>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 8 }}>¿ELIMINAR ÍTEM?</div>
-            <div style={{ fontSize: 12, color: "#8B949E", marginBottom: 24 }}>Esta acción no se puede deshacer.</div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setConfirmDeleteId(null)} style={{ flex: 1, background: "#21262D", border: "1px solid #30363D", borderRadius: 8, padding: "10px", color: "#8B949E", fontSize: 12, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>CANCELAR</button>
-              <button onClick={() => deleteRow(confirmDeleteId)} style={{ flex: 1, background: "#F85149", border: "none", borderRadius: 8, padding: "10px", color: "#fff", fontSize: 12, cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>ELIMINAR</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB: IMPORTAR */}
-      {tab === "importar" && (
-        <div style={{ maxWidth: 700 }}>
-          <div style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, padding: 28 }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 6, letterSpacing: "0.08em" }}>IMPORTAR DESDE CSV / EXCEL</div>
-            <div style={{ fontSize: 11, color: "#8B949E", marginBottom: 20, lineHeight: 1.6 }}>
-              Exporta tu Excel como <strong style={{ color: "#F5A623" }}>.CSV (separado por comas o punto y coma)</strong>.<br />
-              Columnas esperadas (en cualquier orden):<br />
-              <code style={{ color: "#F5A623", fontSize: 10 }}>codigo · centroCosto · faena · solicitadoPor · origen · maquina · item · cantidad · unidad · descripcion · documentos · fechaIngreso</code>
-            </div>
-            <input type="file" ref={fileRef} accept=".csv,.txt" onChange={handleFileUpload} style={{ display: "none" }} />
-            <button onClick={() => fileRef.current.click()} className="btn-hover" style={{ background: "rgba(245,166,35,0.1)", border: "1px dashed rgba(245,166,35,0.4)", borderRadius: 10, padding: "20px 32px", color: "#F5A623", cursor: "pointer", fontSize: 12, fontFamily: "inherit", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 10, transition: "all 0.2s", width: "100%", justifyContent: "center" }}>
-              <Icon name="upload" size={18} /> SELECCIONAR ARCHIVO CSV
-            </button>
-            {importMsg && <div style={{ marginTop: 12, fontSize: 11, color: importMsg.startsWith("✓") ? "#10B981" : "#8B949E" }}>{importMsg}</div>}
-            {importPreview && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ fontSize: 11, color: "#8B949E", marginBottom: 10 }}>Vista previa ({importPreview.length} filas):</div>
-                <div style={{ maxHeight: 260, overflowY: "auto", background: "#0D1117", borderRadius: 8, border: "1px solid #30363D", marginBottom: 14 }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                    <thead>
-                      <tr>{["Código","CC","Faena","Descripción","Estado"].map(h => <th key={h} style={{ padding: "7px 10px", textAlign: "left", fontSize: 9, color: "#484F58", letterSpacing: "0.1em", borderBottom: "1px solid #21262D" }}>{h}</th>)}</tr>
-                    </thead>
-                    <tbody>
-                      {importPreview.slice(0,20).map((r,i) => (
-                        <tr key={i} style={{ borderBottom: "1px solid #21262D" }}>
-                          <td style={{ padding: "6px 10px", color: "#F5A623" }}>{r.codigo}</td>
-                          <td style={{ padding: "6px 10px", color: "#8B949E" }}>{r.centroCosto}</td>
-                          <td style={{ padding: "6px 10px", color: "#E6EDF3" }}>{r.faena}</td>
-                          <td style={{ padding: "6px 10px", color: "#E6EDF3", maxWidth: 200 }}>{r.descripcion}</td>
-                          <td style={{ padding: "6px 10px" }}><EstadoBadge estado={r.estado} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <button onClick={confirmImport} className="btn-hover" style={{ background: "#10B981", border: "none", borderRadius: 8, padding: "10px 24px", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}>
-                  <Icon name="check" size={14} /> CONFIRMAR IMPORTACIÓN
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* TAB: NUEVO ÍTEM */}
-      {tab === "nuevo" && (
-        <div style={{ maxWidth: 700 }}>
-          <div style={{ background: "#161B22", border: "1px solid #21262D", borderRadius: 10, padding: 28 }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 20, letterSpacing: "0.08em" }}>AGREGAR NUEVO ÍTEM</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              {[
-                ["Código Solicitud","codigo","text"],["Centro de Costo","centroCosto","text"],
-                ["Faena / Área","faena","text"],["Solicitado Por","solicitadoPor","text"],
-                ["Documentos Asociados","documentos","text"],["Fecha Ingreso","fechaIngreso","date"],
-              ].map(([label, key, type]) => (
-                <div key={key}>
-                  <div style={labelStyle}>{label.toUpperCase()}</div>
-                  <input type={type} value={newForm[key]} onChange={e => setNewForm(p => ({ ...p, [key]: e.target.value }))} style={inputStyle} />
-                </div>
-              ))}
-              <div>
-                <div style={labelStyle}>ORIGEN</div>
-                <select value={newForm.origen} onChange={e => setNewForm(p => ({ ...p, origen: e.target.value }))} style={selectStyle}>
-                  {ORIGENES.map(o => <option key={o}>{o}</option>)}
-                </select>
-              </div>
-              <div>
-                <div style={labelStyle}>MÁQUINA (si aplica)</div>
-                <input value={newForm.maquina} onChange={e => setNewForm(p => ({ ...p, maquina: e.target.value }))} style={inputStyle} placeholder="CAT 336 #A12" />
-              </div>
-              <div>
-                <div style={labelStyle}>N° ÍTEM</div>
-                <input type="number" value={newForm.item} onChange={e => setNewForm(p => ({ ...p, item: parseInt(e.target.value) || 1 }))} style={inputStyle} min={1} />
-              </div>
-              <div>
-                <div style={labelStyle}>ESTADO</div>
-                <select value={newForm.estado} onChange={e => setNewForm(p => ({ ...p, estado: e.target.value }))} style={selectStyle}>
-                  {ESTADOS.map(e => <option key={e}>{e}</option>)}
-                </select>
-              </div>
-              <div>
-                <div style={labelStyle}>CANTIDAD</div>
-                <input type="number" value={newForm.cantidad} onChange={e => setNewForm(p => ({ ...p, cantidad: parseFloat(e.target.value) || 0 }))} style={inputStyle} min={0} step="0.01" />
-              </div>
-              <div>
-                <div style={labelStyle}>UNIDAD DE MEDIDA</div>
-                <input value={newForm.unidad} onChange={e => setNewForm(p => ({ ...p, unidad: e.target.value }))} style={inputStyle} placeholder="UN, KG, M, L..." />
-              </div>
-            </div>
-            <div style={{ marginTop: 14 }}>
-              <div style={labelStyle}>DESCRIPCIÓN</div>
-              <input value={newForm.descripcion} onChange={e => setNewForm(p => ({ ...p, descripcion: e.target.value }))} style={{ ...inputStyle, width: "100%" }} placeholder="Descripción del material, equipo, herramienta o servicio..." />
-            </div>
-            <button onClick={addNew} className="btn-hover" style={{ marginTop: 20, background: "#F5A623", border: "none", borderRadius: 8, padding: "10px 24px", color: "#0D1117", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}>
-              <Icon name="save" size={14} /> GUARDAR ÍTEM
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  });
 }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+function renderPublic(){
+  populateSelects(); renderStats();
+  var filtered=getFiltered();
+  var grouped={};
+  filtered.forEach(function(r){if(!grouped[r.codigo]) grouped[r.codigo]=[];grouped[r.codigo].push(r);});
+  var codes=Object.keys(grouped);
+  el("info-count").textContent=codes.length+" solicitud(es) \u00b7 "+filtered.length+" \u00edtem(s)";
+  if(!codes.length){el("solicitudes-list").innerHTML='<div class="empty">&#128230;<br><br>No hay solicitudes con esos filtros</div>';return;}
+  el("solicitudes-list").innerHTML=codes.map(function(codigo){
+    var items=grouped[codigo];
+    var first=items[0];
+    var isOpen=expandedCodes[codigo]!==false;
+    var allEstados=[];
+    items.forEach(function(i){if(allEstados.indexOf(i.estado)<0) allEstados.push(i.estado);});
+    var maq=first.maquina?'<div class="divider"></div><div class="sol-meta">M\u00e1q: <span>'+esc(first.maquina)+'</span></div>':"";
+    var rows="";
+    if(isOpen){
+      var sorted=items.slice().sort(function(a,b){return a.item-b.item;});
+      rows='<div style="border-top:1px solid #21262D"><table class="items-table"><thead><tr><th>N\u00b0 \u00cdTEM</th><th>CANT.</th><th>UM</th><th>DESCRIPCI\u00d3N</th><th>ESTADO</th><th>DOCUMENTOS</th><th>FECHA</th></tr></thead><tbody>'+
+        sorted.map(function(row){return '<tr class="row-hover"><td style="color:#F5A623;font-weight:600">'+row.item+'</td><td style="color:#E6EDF3">'+row.cantidad+'</td><td style="color:#8B949E">'+esc(row.unidad)+'</td><td style="color:#E6EDF3;max-width:400px">'+esc(row.descripcion)+'</td><td>'+badge(row.estado)+'</td><td style="color:#8B949E;font-size:11px">'+(esc(row.documentos)||"\u2014")+'</td><td style="color:#484F58;font-size:11px">'+esc(row.fechaIngreso)+'</td></tr>';}).join("")+
+        '</tbody></table></div>';
+    }
+    return '<div class="sol-card"><div class="sol-header '+(isOpen?"open":"") +'" onclick="toggleCode(\''+esc(codigo)+'\')">'+
+      '<span class="chevron '+(isOpen?"open":"closed")+'">&#8964;</span>'+
+      '<div class="sol-code">'+esc(codigo)+'</div>'+
+      '<div class="divider"></div><div class="sol-meta">'+esc(first.faena)+'</div>'+
+      '<div class="divider"></div><div class="sol-meta">'+esc(first.centroCosto)+'</div>'+
+      '<div class="divider"></div><div class="sol-meta">Solicitado por: <span>'+esc(first.solicitadoPor)+'</span></div>'+
+      maq+'<div class="divider"></div><span class="origen-tag">'+esc(first.origen)+'</span>'+
+      '<div class="sol-right">'+allEstados.map(badge).join("")+'<span style="font-size:10px;color:#484F58;margin-left:4px">'+items.length+' \u00edtem'+(items.length>1?"s":"")+'</span></div></div>'+rows+'</div>';
+  }).join("");
+}
+
+function toggleCode(codigo){expandedCodes[codigo]=expandedCodes[codigo]===false?true:false;renderPublic();}
+
+function getFilteredAdmin(){
+  var search=(el("a-search")||{}).value||"";
+  var cc=(el("a-cc")||{}).value||"";
+  var estado=(el("a-estado")||{}).value||"";
+  return DATA.filter(function(r){
+    if(cc&&r.centroCosto!==cc) return false;
+    if(estado&&r.estado!==estado) return false;
+    if(search&&r.codigo.toLowerCase().indexOf(search.toLowerCase())<0&&r.descripcion.toLowerCase().indexOf(search.toLowerCase())<0) return false;
+    return true;
+  });
+}
+
+function renderAdmin(){
+  populateSelects(); renderStats();
+  var rows=getFilteredAdmin();
+  var tbody=el("admin-tbody"),empty=el("admin-empty"),rec=el("admin-records");
+  if(!rows.length){tbody.innerHTML="";empty.classList.remove("hidden");rec.textContent="";}
+  else{
+    empty.classList.add("hidden");
+    tbody.innerHTML=rows.map(function(row){
+      if(editingId===row.id){
+        return '<tr class="row-hover"><td style="color:#F5A623;font-weight:600;white-space:nowrap">'+esc(row.codigo)+'</td><td style="color:#8B949E">'+esc(row.centroCosto)+'</td><td>'+esc(row.faena)+'</td><td style="color:#8B949E">'+esc(row.solicitadoPor)+'</td><td><span class="origen-tag">'+esc(row.origen)+'</span></td><td style="color:#F5A623">'+row.item+'</td><td>'+row.cantidad+'</td><td style="color:#8B949E">'+esc(row.unidad)+'</td><td style="max-width:280px">'+esc(row.descripcion)+'</td>'+
+          '<td><select class="inp" id="edit-estado-'+row.id+'" style="font-size:11px;padding:3px 8px;border-color:#F5A623"><option'+(row.estado==="Pendiente"?" selected":"")+'>Pendiente</option><option'+(row.estado==="En Proceso"?" selected":"")+'>En Proceso</option><option'+(row.estado==="Completada"?" selected":"")+'>Completada</option></select></td>'+
+          '<td style="color:#8B949E;font-size:11px">'+(esc(row.documentos)||"\u2014")+'</td><td style="color:#484F58;font-size:11px;white-space:nowrap">'+esc(row.fechaIngreso)+'</td>'+
+          '<td><div class="action-wrap"><button class="btn-sm-ok" onclick="saveEstado('+row.id+')">&#10004;</button><button class="btn-sm-cancel" onclick="cancelEdit()">&#10005;</button></div></td></tr>';
+      }
+      return '<tr class="row-hover"><td style="color:#F5A623;font-weight:600;white-space:nowrap">'+esc(row.codigo)+'</td><td style="color:#8B949E;white-space:nowrap">'+esc(row.centroCosto)+'</td><td style="white-space:nowrap">'+esc(row.faena)+'</td><td style="color:#8B949E;white-space:nowrap">'+esc(row.solicitadoPor)+'</td><td><span class="origen-tag">'+esc(row.origen)+'</span></td><td style="color:#F5A623">'+row.item+'</td><td>'+row.cantidad+'</td><td style="color:#8B949E">'+esc(row.unidad)+'</td><td style="max-width:280px">'+esc(row.descripcion)+'</td><td>'+badge(row.estado)+'</td><td style="color:#8B949E;font-size:11px">'+(esc(row.documentos)||"\u2014")+'</td><td style="color:#484F58;font-size:11px;white-space:nowrap">'+esc(row.fechaIngreso)+'</td>'+
+        '<td><div class="action-wrap"><button class="btn-sm-edit" onclick="startEdit('+row.id+')" title="Editar estado">&#9999;</button><button class="btn-sm-del" onclick="openModal('+row.id+')" title="Eliminar">&#128465;</button></div></td></tr>';
+    }).join("");
+    rec.textContent=rows.length+" de "+DATA.length+" registros";
+  }
+}
+
+function startEdit(id){editingId=id;renderAdmin();}
+function cancelEdit(){editingId=null;renderAdmin();}
+function saveEstado(id){
+  var sel=el("edit-estado-"+id);
+  if(sel){for(var i=0;i<DATA.length;i++){if(DATA[i].id===id){DATA[i].estado=sel.value;break;}}}
+  editingId=null;renderAdmin();renderStats();
+}
+function openModal(id){deleteTargetId=id;el("modal-delete").classList.remove("hidden");}
+function closeModal(){deleteTargetId=null;el("modal-delete").classList.add("hidden");}
+function confirmDelete(){
+  if(deleteTargetId!==null) DATA=DATA.filter(function(r){return r.id!==deleteTargetId;});
+  closeModal();renderAdmin();renderStats();
+}
+function addNew(){
+  var g=function(id){return el(id)?el(id).value:"";};
+  DATA.push({id:nextId(),codigo:g("n-codigo"),centroCosto:g("n-cc"),faena:g("n-faena"),solicitadoPor:g("n-solicitado"),origen:g("n-origen"),maquina:g("n-maquina"),item:parseInt(g("n-item"))||1,cantidad:parseFloat(g("n-cantidad"))||0,unidad:g("n-unidad"),descripcion:g("n-desc"),estado:g("n-estado"),documentos:g("n-docs"),fechaIngreso:g("n-fecha")||todayStr()});
+  ["n-codigo","n-cc","n-faena","n-solicitado","n-maquina","n-docs","n-unidad","n-desc"].forEach(function(id){if(el(id)) el(id).value="";});
+  el("n-item").value=1; el("n-cantidad").value=1; el("n-fecha").value=todayStr();
+  switchAdminTab("tabla"); renderAdmin();
+}
+function handleCSV(e){
+  var file=e.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var text=ev.target.result;
+    var lines=text.trim().split("\n"); if(lines.length<2) return;
+    var sep=lines[0].indexOf(";")>=0?";":",";
+    var headers=lines[0].split(sep).map(function(h){return h.trim().toLowerCase().replace(/[^a-z0-9]/g,"");});
+    var get=function(vals){
+      var keys=Array.prototype.slice.call(arguments,1);
+      for(var k=0;k<keys.length;k++){var idx=headers.findIndex(function(h){return h.indexOf(keys[k])>=0;});if(idx>=0&&vals[idx]) return vals[idx].trim().replace(/^"|"$/g,"");}
+      return "";
+    };
+    importBuffer=[];
+    for(var i=1;i<lines.length;i++){
+      var vals=lines[i].split(sep);
+      if(vals.every(function(v){return !v.trim();})) continue;
+      importBuffer.push({id:nextId()+i,codigo:get(vals,"codigo","sol","code"),centroCosto:get(vals,"centrocosto","centro","cc"),faena:get(vals,"faena","obra","proyecto"),solicitadoPor:get(vals,"solicitado","solicitante"),origen:get(vals,"origen","area","tipo"),maquina:get(vals,"maquina","equipo"),item:parseInt(get(vals,"item","nitem","n"))||i,cantidad:parseFloat(get(vals,"cantidad","cant"))||0,unidad:get(vals,"unidad","um","ud"),descripcion:get(vals,"descripcion","desc","nombre"),estado:"Pendiente",documentos:get(vals,"documento","doc","oc","ref"),fechaIngreso:todayStr()});
+    }
+    el("import-msg").textContent=importBuffer.length+" filas detectadas";
+    el("preview-count").textContent="Vista previa ("+importBuffer.length+" filas):";
+    el("preview-tbody").innerHTML=importBuffer.slice(0,20).map(function(r){return '<tr><td style="color:#F5A623">'+esc(r.codigo)+'</td><td style="color:#8B949E">'+esc(r.centroCosto)+'</td><td>'+esc(r.faena)+'</td><td style="max-width:200px">'+esc(r.descripcion)+'</td><td>'+badge(r.estado)+'</td></tr>';}).join("");
+    el("import-preview").classList.remove("hidden");
+  };
+  reader.readAsText(file,"UTF-8");
+  e.target.value="";
+}
+function confirmImport(){
+  if(!importBuffer) return;
+  DATA=DATA.concat(importBuffer); importBuffer=null;
+  el("import-preview").classList.add("hidden");
+  el("import-msg").style.color="#10B981";
+  el("import-msg").textContent="\u2713 Importaci\u00f3n exitosa";
+  switchAdminTab("tabla"); renderAdmin();
+}
+function exportCSV(){
+  var headers=["codigo","centroCosto","faena","solicitadoPor","origen","maquina","item","cantidad","unidad","descripcion","estado","documentos","fechaIngreso"];
+  var rows=[headers.join(";")].concat(DATA.map(function(r){return headers.map(function(h){return r[h]!=null?r[h]:"";}).join(";");}));
+  var blob=new Blob([rows.join("\n")],{type:"text/csv;charset=utf-8;"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download="solicitudes_export.csv";a.click();
+}
+el("n-fecha").value=todayStr();
+renderPublic();
+</script>
 </body>
 </html>
+
